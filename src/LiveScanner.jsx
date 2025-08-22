@@ -1,6 +1,17 @@
 import React, { useEffect, useRef } from "react";
 import Quagga from "quagga";
 
+// simple haptic+beep feedback
+function feedback(){
+  try{navigator.vibrate&&navigator.vibrate(80);}catch{}
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator();const g=ctx.createGain();
+    o.type="sine";o.frequency.value=880;g.gain.value=0.05;o.connect(g);g.connect(ctx.destination);
+    o.start();setTimeout(()=>{o.stop();ctx.close();},120);
+  }catch{}
+}
+
 export default function LiveScanner({ onScan, zoom=2, className="w-full rounded-2xl border border-slate-700 overflow-hidden h-64" }) {
   const containerRef = useRef(null);
 
@@ -36,7 +47,12 @@ export default function LiveScanner({ onScan, zoom=2, className="w-full rounded-
               const bitmap = await createImageBitmap(video);
               const codes = await detector.detect(bitmap);
               bitmap.close();
-              if (codes[0]?.rawValue) onScan?.(codes[0].rawValue);
+              if (codes[0]?.rawValue){
+                feedback();
+                onScan?.(codes[0].rawValue);
+                stop();
+                return;
+              }
             } catch {}
             requestAnimationFrame(loop);
           };
@@ -74,7 +90,11 @@ export default function LiveScanner({ onScan, zoom=2, className="w-full rounded-
       }
     });
     const handler = (result) => {
-      if (result?.codeResult?.code) onScan?.(result.codeResult.code);
+      if (result?.codeResult?.code){
+         feedback();
+         onScan?.(result.codeResult.code);
+         stop();
+      }
     };
     Quagga.onDetected(handler);
     stop = () => { Quagga.offDetected(handler); Quagga.stop(); };
