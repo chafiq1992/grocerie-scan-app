@@ -14,6 +14,19 @@ from .db import get_conn, to_float
 
 app = FastAPI()
 
+# ---- Serve React build ----
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+
+# The multi-stage Dockerfile copies the Vite build to /app/frontend/dist
+frontend_dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+if frontend_dist.exists():
+    # Mount at root so / serves index.html and deep-links work
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+else:
+    # In dev (before build) this path won't exist – nothing to mount
+    pass
+
 
 # ---------- Pydantic models ----------
 
