@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import LiveScanner from "./LiveScanner.jsx";
 
 // Canvas visual mockup with HOME -> (Sale | Inventory) navigation
 // Includes: success beep + vibration on valid scan, manual entry with suggestions,
@@ -279,12 +280,19 @@ function SaleMode({ onPaid }) {
     <div className="grid md:grid-cols-2 gap-6">
       <div className="space-y-4">
         <SectionTitle>Sale Mode</SectionTitle>
-        <ScannerMock
-          hint="Scan items or type code…"
-          value={scan}
-          onChange={setScan}
-          onScan={mockScan}
-        />
+        {/* Prefer live camera on small screens */}
+        <div className="hidden sm:block">
+          <ScannerMock
+            hint="Scan items or type code…"
+            value={scan}
+            onChange={setScan}
+            onScan={mockScan}
+          />
+        </div>
+        <div className="sm:hidden">
+          <LiveScanner onScan={(code)=>{ setScan(code); mockScan(); }} />
+          <div className="text-center text-xs text-slate-400 mt-2">Camera active – point at barcode</div>
+        </div>
         {scan && (
           <SuggestionList
             items={suggestions}
