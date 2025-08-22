@@ -84,6 +84,7 @@ function InventoryMode() {
   const [query, setQuery] = useState("");
   const [items, setItems] = useState(() => demoInventory);
   const [toast, setToast] = useState("");
+  const [scanning,setScanning]=useState(true);
 
   useEffect(()=>{ if(!toast) return; const t=setTimeout(()=>setToast(""),1500); return ()=>clearTimeout(t);},[toast]);
 
@@ -145,7 +146,9 @@ function InventoryMode() {
 
         {/* Mobile live scanner */}
         <div className="sm:hidden">
-          <LiveScanner zoom={2} onScan={(code)=>{ setBarcode(code); handleMockScan(); }} />
+          {scanning && (
+            <LiveScanner zoom={2} onScan={(code)=>{ setBarcode(code); handleMockScan(); setScanning(false);} } />
+          )}
           <div className="text-center text-xs text-slate-400 mt-2">Camera active – point at barcode</div>
         </div>
 
@@ -193,7 +196,7 @@ function InventoryMode() {
           <div className="flex gap-3 pt-2">
             <button className="btn-primary" onClick={save}>Save Product</button>
             <button className="btn-secondary" onClick={() => {
-              setBarcode(""); setName(""); setPrice(""); setStock("");
+              setBarcode(""); setName(""); setPrice(""); setStock(""); setScanning(true);
             }}>Clear</button>
           </div>
           {toast && <div className="text-emerald-400 text-sm font-bold">{toast}</div>}
@@ -244,6 +247,7 @@ function InventoryMode() {
 function SaleMode({ onPaid }) {
   const [cart, setCart] = useState([]); // {barcode, name, price, qty}
   const [scan, setScan] = useState("");
+  const [scanning,setScanning]=useState(true);
   const [toast, setToast] = useState("");
 
   useEffect(()=>{ if(!toast) return; const t=setTimeout(()=>setToast(""),1500); return ()=>clearTimeout(t);},[toast]);
@@ -299,7 +303,9 @@ function SaleMode({ onPaid }) {
           />
         </div>
         <div className="sm:hidden">
-          <LiveScanner zoom={2} onScan={(code)=>{ setScan(code); mockScan(); }} />
+          {scanning && (
+            <LiveScanner zoom={2} onScan={(code)=>{ setScan(code); mockScan(); setScanning(false);} } />
+          )}
           <div className="text-center text-xs text-slate-400 mt-2">Camera active – point at barcode</div>
         </div>
         {scan && (
@@ -341,7 +347,7 @@ function SaleMode({ onPaid }) {
         </div>
 
         <div className="flex gap-3">
-          <button className="btn-secondary" onClick={()=>setCart([])}>Clear</button>
+          <button className="btn-secondary" onClick={()=>{setCart([]);setScanning(true);setScan("");}}>Clear</button>
           <button className="btn-primary" onClick={paidAndArchive}>Paid</button>
         </div>
         {toast && <div className="text-emerald-400 text-sm font-bold">{toast}</div>}
