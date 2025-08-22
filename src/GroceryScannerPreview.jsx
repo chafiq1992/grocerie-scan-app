@@ -117,15 +117,17 @@ function InventoryMode() {
     return items.filter(i=> i.barcode.startsWith(barcode) || (i.name||"").toLowerCase().includes(barcode.toLowerCase())).slice(0,6);
   },[barcode, items]);
 
-  async function handleMockScan() {
-    if (!barcode) return;
-    let existing = items.find((i) => i.barcode === barcode);
+  async function handleMockScan(codeIn) {
+    const code = codeIn ?? barcode;
+    if (!code) return;
+    let existing = items.find((i) => i.barcode === code);
     if (!existing) {
       try{
-        const r = await ProductsAPI.get(barcode);
+        const r = await ProductsAPI.get(code);
         existing = r || null;
       }catch{}
     }
+    setBarcode(code);
     if (existing) {
       setName(existing.name||"");
       setPrice(String(Number(existing.price).toFixed(2)));
@@ -175,7 +177,7 @@ function InventoryMode() {
         {/* Mobile live scanner */}
         <div className="sm:hidden">
           {scanning && (
-            <LiveScanner zoom={2} onScan={(code)=>{ setBarcode(code); handleMockScan(); setScanning(false);} } />
+            <LiveScanner zoom={2} onScan={(code)=>{ handleMockScan(code); setScanning(false);} } />
           )}
           <div className="text-center text-xs text-slate-400 mt-2">Camera active – point at barcode</div>
         </div>
@@ -225,14 +227,14 @@ function InventoryMode() {
         <div className="mt-4 bg-white border rounded-2xl p-4">
           <div className="flex gap-4">
             <button
-              className="btn-primary text-lg px-6 py-3"
+              className="btn-primary text-lg px-6 py-3 text-black"
               disabled={isSaving}
               onClick={save}
             >
               {isSaving ? "Saving…" : "Save Product"}
             </button>
             <button
-              className="btn-secondary text-lg px-6 py-3"
+              className="btn-secondary text-lg px-6 py-3 text-black"
               onClick={() => {
                 setBarcode("");
                 setName("");
@@ -274,7 +276,7 @@ function InventoryMode() {
               <div className="font-extrabold text-slate-900">{formatMoney(item.price)}</div>
               <span className="px-3 py-1 text-xs rounded-full bg-slate-100 border border-slate-300 text-slate-700">Stock: {item.stock ?? 0}</span>
               <button
-                className="btn-ghost"
+                className="btn-ghost text-black"
                 onClick={() => {
                   setBarcode(item.barcode);
                   setName(item.name || "");
