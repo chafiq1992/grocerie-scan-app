@@ -399,16 +399,18 @@ function SaleMode({ onPaid }) {
         </div>
 
         {/* Payment section */}
-        <div className="bg-white border border-slate-300 rounded-2xl p-4 space-y-3">
+        <div className="space-y-3">
           <div className="text-slate-700 font-extrabold">Payment</div>
-          <input
-            className="input w-full"
-            value={amountPaid}
-            onChange={(e)=>setAmountPaid(e.target.value)}
-            placeholder="Amount paid (e.g., 100.00)"
-            inputMode="decimal"
-          />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="bg-white border rounded-2xl p-4">
+              <input
+                className="input w-full text-black text-2xl p-4"
+                value={amountPaid}
+                onChange={(e)=>setAmountPaid(e.target.value)}
+                placeholder="Amount paid (e.g., 100.00)"
+                inputMode="decimal"
+              />
+            </div>
             <div className="rounded-xl p-3 border border-emerald-300 bg-emerald-50">
               <div className="text-emerald-700 text-sm font-bold">Total</div>
               <div className="text-2xl font-black text-emerald-700">{formatMoney(total)}</div>
