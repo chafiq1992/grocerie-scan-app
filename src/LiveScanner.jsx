@@ -12,7 +12,12 @@ export default function LiveScanner({ onScan, zoom=2, className="w-full rounded-
     if ("BarcodeDetector" in window) {
       (async () => {
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } });
+          let constraints = { video: { facingMode: { exact: "environment" } } };
+          // try to pick the last camera which is usually rear on mobile
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const cams = devices.filter(d=> d.kind==='videoinput');
+          if (cams.length>1) constraints = { video: { deviceId: { exact: cams[cams.length-1].deviceId } } };
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
           const video = document.createElement("video");
           video.playsInline = true;
           video.srcObject = stream;
