@@ -177,7 +177,7 @@ function InventoryMode() {
         <div className="bg-white border border-slate-300 rounded-2xl p-4 space-y-4">
           <Label>Barcode</Label>
           <input
-            className="input w-full"
+            className="input w-full p-3 border border-slate-300 rounded-lg text-slate-900 text-lg placeholder-slate-500"
             value={barcode}
             onChange={(e) => setBarcode(e.target.value)}
             placeholder="Scan a barcode…"
@@ -185,7 +185,7 @@ function InventoryMode() {
 
           <Label>Name (optional)</Label>
           <input
-            className="input w-full"
+            className="input w-full p-3 border border-slate-300 rounded-lg text-slate-900 text-lg placeholder-slate-500"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g., Milk 1L"
@@ -193,7 +193,7 @@ function InventoryMode() {
 
           <Label>Price</Label>
           <input
-            className="input w-full"
+            className="input w-full p-3 border border-slate-300 rounded-lg text-slate-900 text-lg placeholder-slate-500"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             placeholder="e.g., 12.50"
@@ -201,7 +201,7 @@ function InventoryMode() {
 
           <Label>Stock (optional)</Label>
           <input
-            className="input w-full"
+            className="input w-full p-3 border border-slate-300 rounded-lg text-slate-900 text-lg placeholder-slate-500"
             value={stock}
             onChange={(e) => setStock(e.target.value)}
             placeholder="e.g., 20"
@@ -223,7 +223,7 @@ function InventoryMode() {
         {/* load from backend on mount */}
         <Loader setItems={setItems} />
         <input
-          className="input w-full"
+          className="input w-full p-3 border border-slate-300 rounded-lg text-slate-900 text-lg placeholder-slate-500"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by name or barcode…"
@@ -444,7 +444,7 @@ function ScannerMock({ hint, value, onChange, onScan }) {
       </div>
       <div className="p-3 border-t border-slate-800 bg-slate-900/60 flex gap-2">
         <input
-          className="flex-1 input"
+          className="flex-1 input p-3 border border-slate-300 rounded-lg text-slate-900 text-lg placeholder-slate-500"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Type barcode here to simulate scan…"
