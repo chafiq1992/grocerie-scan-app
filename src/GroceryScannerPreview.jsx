@@ -145,7 +145,7 @@ function InventoryMode() {
 
         {/* Mobile live scanner */}
         <div className="sm:hidden">
-          <LiveScanner onScan={(code)=>{ setBarcode(code); handleMockScan(); }} />
+          <LiveScanner zoom={2} onScan={(code)=>{ setBarcode(code); handleMockScan(); }} />
           <div className="text-center text-xs text-slate-400 mt-2">Camera active – point at barcode</div>
         </div>
 
@@ -299,7 +299,7 @@ function SaleMode({ onPaid }) {
           />
         </div>
         <div className="sm:hidden">
-          <LiveScanner onScan={(code)=>{ setScan(code); mockScan(); }} />
+          <LiveScanner zoom={2} onScan={(code)=>{ setScan(code); mockScan(); }} />
           <div className="text-center text-xs text-slate-400 mt-2">Camera active – point at barcode</div>
         </div>
         {scan && (
