@@ -251,7 +251,7 @@ function InventoryMode() {
               >
                 Load
               </button>
-            </div)
+            </div>
           ))}
         </div>
       </div>
