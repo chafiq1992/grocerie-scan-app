@@ -27,13 +27,13 @@ function Header({ screen, onBack }) {
   return (
     <div className="flex items-center justify-between mb-4">
       {screen !== "home" ? (
-        <button className="btn-ghost flex items-center gap-2" onClick={onBack}>
+        <button className="btn-back flex items-center gap-2" onClick={onBack}>
           <span>←</span>
           <span>Home</span>
         </button>
       ) : <span />}
       <h1 className="text-2xl font-extrabold tracking-tight">Groceries Scanner</h1>
-      <div className="text-xs text-slate-400">Preview UI (no camera)</div>
+      <span />
     </div>
   );
 }
@@ -103,14 +103,20 @@ function InventoryMode() {
     return items.filter(i=> i.barcode.startsWith(barcode) || (i.name||"").toLowerCase().includes(barcode.toLowerCase())).slice(0,6);
   },[barcode, items]);
 
-  function handleMockScan() {
+  async function handleMockScan() {
     if (!barcode) return;
-    const existing = items.find((i) => i.barcode === barcode);
+    let existing = items.find((i) => i.barcode === barcode);
+    if (!existing) {
+      try{
+        const r = await ProductsAPI.get(barcode);
+        existing = r || null;
+      }catch{}
+    }
     if (existing) {
-      setName(existing.name);
-      setPrice(String(existing.price.toFixed(2)));
+      setName(existing.name||"");
+      setPrice(String(Number(existing.price).toFixed(2)));
       setStock(String(existing.stock ?? 0));
-      successFeedback(); // beep + vibrate on valid match
+      successFeedback();
     } else {
       setName("");
       setPrice("");
@@ -168,7 +174,7 @@ function InventoryMode() {
         )}
 
         {/* Form */}
-        <div className="bg-slate-800/70 border border-slate-700 rounded-2xl p-4 space-y-3">
+        <div className="bg-white border border-slate-300 rounded-2xl p-4 space-y-4">
           <Label>Barcode</Label>
           <input
             className="input w-full"
@@ -217,23 +223,23 @@ function InventoryMode() {
         {/* load from backend on mount */}
         <Loader setItems={setItems} />
         <input
-          className="input"
+          className="input w-full"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by name or barcode…"
         />
-        <div className="bg-slate-800/70 border border-slate-700 rounded-2xl divide-y divide-slate-700">
+        <div className="bg-white border border-slate-300 rounded-2xl divide-y divide-slate-200">
           {filtered.length === 0 && (
             <div className="p-4 text-slate-400">No results</div>
           )}
           {filtered.map((item) => (
             <div key={item.barcode} className="p-4 flex items-center gap-4">
               <div className="flex-1">
-                <div className="font-extrabold text-slate-100">{item.name || "(No name)"}</div>
-                <div className="text-slate-400 text-sm">#{item.barcode}</div>
+                <div className="font-extrabold text-slate-900">{item.name || "(No name)"}</div>
+                <div className="text-slate-500 text-sm">#{item.barcode}</div>
               </div>
               <div className="font-extrabold">{formatMoney(item.price)}</div>
-              <span className="px-3 py-1 text-xs rounded-full bg-slate-700 border border-slate-600">Stock: {item.stock ?? 0}</span>
+              <span className="px-3 py-1 text-xs rounded-full bg-slate-100 border border-slate-300 text-slate-700">Stock: {item.stock ?? 0}</span>
               <button
                 className="btn-ghost"
                 onClick={() => {
@@ -245,7 +251,7 @@ function InventoryMode() {
               >
                 Load
               </button>
-            </div>
+            </div)
           ))}
         </div>
       </div>
@@ -418,7 +424,7 @@ function SectionTitle({ children }) {
 }
 
 function Label({ children }) {
-  return <div className="text-slate-300 font-bold text-sm">{children}</div>;
+  return <div className="text-slate-900 font-extrabold text-base">{children}</div>;
 }
 
 function ScannerMock({ hint, value, onChange, onScan }) {
