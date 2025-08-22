@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import LiveScanner from "./LiveScanner.jsx";
+import { ProductsAPI } from "./api.js";
 
 // Canvas visual mockup with HOME -> (Sale | Inventory) navigation
 // Includes: success beep + vibration on valid scan, manual entry with suggestions,
@@ -82,7 +82,7 @@ function InventoryMode() {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [query, setQuery] = useState("");
-  const [items, setItems] = useState(() => demoInventory);
+  const [items, setItems] = useState([]);
   const [toast, setToast] = useState("");
   const [scanning,setScanning]=useState(true);
 
@@ -116,15 +116,13 @@ function InventoryMode() {
     }
   }
 
-  function save() {
+  async function save() {
     const p = Number(price);
     const s = stock === "" ? 0 : Number(stock);
     if (!barcode || !p || p <= 0) return;
-    const idx = items.findIndex((x) => x.barcode === barcode);
-    const next = [...items];
-    if (idx >= 0) next[idx] = { barcode, name, price: p, stock: s };
-    else next.unshift({ barcode, name, price: p, stock: s });
-    setItems(next);
+    await ProductsAPI.upsert({ barcode, name, price: p, stock: s });
+    const fresh = await ProductsAPI.list();
+    setItems(fresh.items || []);
     setToast("Product saved");
   }
 
@@ -206,6 +204,8 @@ function InventoryMode() {
       {/* Right: Quick Search */}
       <div className="space-y-4">
         <SectionTitle>Quick Search</SectionTitle>
+        {/* load from backend on mount */}
+        <Loader setItems={setItems} />
         <input
           className="input"
           value={query}
@@ -243,6 +243,18 @@ function InventoryMode() {
   );
 }
 
+function Loader({ setItems }){
+  useEffect(()=>{
+    (async ()=>{
+      try{
+        const res = await ProductsAPI.list();
+        setItems(res.items||[]);
+      }catch(e){ console.error(e); }
+    })();
+  },[setItems]);
+  return null;
+}
+
 /* ------------------------ SALE MODE ------------------------ */
 function SaleMode({ onPaid }) {
   const [cart, setCart] = useState([]); // {barcode, name, price, qty}
@@ -254,7 +266,7 @@ function SaleMode({ onPaid }) {
 
   function mockScan() {
     if (!scan) return;
-    const product = demoInventory.find((i) => i.barcode === scan);
+    const product = items.find((i) => i.barcode === scan); // Changed to use 'items'
     if (!product) return; // no beep/vibration for invalid
 
     successFeedback(); // beep + vibrate on valid match
@@ -286,7 +298,7 @@ function SaleMode({ onPaid }) {
 
   const suggestions = useMemo(()=>{
     if (!scan) return [];
-    return demoInventory.filter(i=> i.barcode.startsWith(scan) || (i.name||"").toLowerCase().includes(scan.toLowerCase())).slice(0,6);
+    return items.filter(i=> i.barcode.startsWith(scan) || (i.name||"").toLowerCase().includes(scan.toLowerCase())).slice(0,6); // Changed to use 'items'
   },[scan]);
 
   return (
@@ -432,10 +444,4 @@ function successFeedback() {
 
 const formatMoney = (n) => (isFinite(n) ? Number(n).toFixed(2) : "0.00");
 
-const demoInventory = [
-  { barcode: "611001", name: "Milk 1L", price: 12.5, stock: 24 },
-  { barcode: "611002", name: "Eggs 12pcs", price: 22.9, stock: 18 },
-  { barcode: "611003", name: "Flour 1kg", price: 9.9, stock: 30 },
-  { barcode: "611004", name: "Sugar 1kg", price: 8.5, stock: 50 },
-  { barcode: "611005", name: "Apples 1kg", price: 14.0, stock: 12 },
-];
+// demoInventory removed; data now comes from backend
