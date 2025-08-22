@@ -206,14 +206,33 @@ function InventoryMode() {
             onChange={(e) => setStock(e.target.value)}
             placeholder="e.g., 20"
           />
+        </div>
 
-          <div className="flex gap-3 pt-2">
-            <button className="btn-primary" disabled={isSaving} onClick={save}>{isSaving?"Saving…":"Save Product"}</button>
-            <button className="btn-secondary" onClick={() => {
-              setBarcode(""); setName(""); setPrice(""); setStock(""); setScanning(true);
-            }}>Clear</button>
+        <div className="mt-4 bg-white border rounded-2xl p-4">
+          <div className="flex gap-4">
+            <button
+              className="btn-primary text-lg px-6 py-3"
+              disabled={isSaving}
+              onClick={save}
+            >
+              {isSaving ? "Saving…" : "Save Product"}
+            </button>
+            <button
+              className="btn-secondary text-lg px-6 py-3"
+              onClick={() => {
+                setBarcode("");
+                setName("");
+                setPrice("");
+                setStock("");
+                setScanning(true);
+              }}
+            >
+              Clear
+            </button>
           </div>
-          {toast && <div className="text-emerald-400 text-sm font-bold">{toast}</div>}
+          {toast && (
+            <div className="text-emerald-400 text-sm font-bold mt-2">{toast}</div>
+          )}
         </div>
       </div>
 
