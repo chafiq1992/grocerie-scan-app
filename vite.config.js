@@ -7,5 +7,10 @@ plugins: [react()],
 build: {
 outDir: 'dist',
 sourcemap: false
+},
+resolve: {
+  alias: {
+    '@zxing/library': '@zxing/library/esm/index.js'
+  }
 }
 })
