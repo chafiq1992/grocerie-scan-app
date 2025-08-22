@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import LiveScanner from "./LiveScanner.jsx";
 import { ProductsAPI } from "./api.js";
 
 // Canvas visual mockup with HOME -> (Sale | Inventory) navigation
@@ -259,14 +260,22 @@ function Loader({ setItems }){
 function SaleMode({ onPaid }) {
   const [cart, setCart] = useState([]); // {barcode, name, price, qty}
   const [scan, setScan] = useState("");
-  const [scanning,setScanning]=useState(true);
   const [toast, setToast] = useState("");
+  const [catalog, setCatalog] = useState([]);
+  const [scanning,setScanning]=useState(true);
 
   useEffect(()=>{ if(!toast) return; const t=setTimeout(()=>setToast(""),1500); return ()=>clearTimeout(t);},[toast]);
 
+  // Load product catalog for suggestions/lookups
+  useEffect(()=>{
+    (async ()=>{
+      try{ const res = await ProductsAPI.list(); setCatalog(res.items||[]); }catch(e){ console.error(e); }
+    })();
+  },[]);
+
   function mockScan() {
     if (!scan) return;
-    const product = items.find((i) => i.barcode === scan); // Changed to use 'items'
+    const product = catalog.find((i) => i.barcode === scan);
     if (!product) return; // no beep/vibration for invalid
 
     successFeedback(); // beep + vibrate on valid match
@@ -298,8 +307,8 @@ function SaleMode({ onPaid }) {
 
   const suggestions = useMemo(()=>{
     if (!scan) return [];
-    return items.filter(i=> i.barcode.startsWith(scan) || (i.name||"").toLowerCase().includes(scan.toLowerCase())).slice(0,6); // Changed to use 'items'
-  },[scan]);
+    return catalog.filter(i=> i.barcode.startsWith(scan) || (i.name||"").toLowerCase().includes(scan.toLowerCase())).slice(0,6);
+  },[scan, catalog]);
 
   return (
     <div className="grid md:grid-cols-2 gap-6">

@@ -10,10 +10,13 @@ DB_URL = os.environ.get("SUPABASE_DB_URL")
 if not DB_URL:
     raise RuntimeError("SUPABASE_DB_URL is required. Set it via env vars.")
 
-# Ensure TLS param for Supabase
+# Ensure TLS param for Supabase; handle case where user supplied '?sslmode' without '=require'
 if "sslmode" not in DB_URL:
     sep = "&" if "?" in DB_URL else "?"
     DB_URL = f"{DB_URL}{sep}sslmode=require"
+elif "sslmode=" not in DB_URL:
+    # replace bare 'sslmode' with 'sslmode=require'
+    DB_URL = DB_URL.replace("sslmode", "sslmode=require")
 
 
 def get_conn():
