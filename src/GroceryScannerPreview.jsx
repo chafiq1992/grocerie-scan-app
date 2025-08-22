@@ -309,3 +309,54 @@ function SectionTitle({ children }) {
 // (The rest of helper components and demo data + style injection copied verbatim as provided.)
 
 // -- For brevity, the rest of helper functions from user snippet are the same --
+
+/* -------------------------- REMAINING HELPERS -------------------------- */
+function SuggestionList({ items, onPick }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <div className="bg-slate-800/70 border border-slate-700 rounded-2xl overflow-hidden">
+      {items.map(it=> (
+        <button key={it.barcode} className="w-full text-left px-4 py-2 hover:bg-slate-700/40 flex items-center gap-3" onClick={()=>onPick(it)}>
+          <div className="flex-1">
+            <div className="font-bold">{it.name}</div>
+            <div className="text-xs text-slate-400">#{it.barcode}</div>
+          </div>
+          <div className="font-extrabold">{formatMoney(it.price)}</div>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function FooterNote() {
+  return (
+    <div className="mt-6 text-center text-slate-400 text-sm">
+      Tip: Add items in Inventory first, then switch to Sale.
+    </div>
+  );
+}
+
+function successFeedback() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.value = 880;
+    g.gain.value = 0.05;
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    setTimeout(()=>{ o.stop(); ctx.close(); }, 120);
+  } catch(e) {}
+  try { navigator.vibrate && navigator.vibrate(80); } catch(e) {}
+}
+
+const formatMoney = (n) => (isFinite(n) ? Number(n).toFixed(2) : "0.00");
+
+const demoInventory = [
+  { barcode: "611001", name: "Milk 1L", price: 12.5, stock: 24 },
+  { barcode: "611002", name: "Eggs 12pcs", price: 22.9, stock: 18 },
+  { barcode: "611003", name: "Flour 1kg", price: 9.9, stock: 30 },
+  { barcode: "611004", name: "Sugar 1kg", price: 8.5, stock: 50 },
+  { barcode: "611005", name: "Apples 1kg", price: 14.0, stock: 12 },
+];
