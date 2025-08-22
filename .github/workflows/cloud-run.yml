@@ -36,7 +36,7 @@ jobs:
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: grocery-scanner-preview
+          service: service: grocerie-scan-app
           region: ${{ secrets.GCP_REGION }}
           image: ${{ env.IMAGE }}
           env_vars: |
