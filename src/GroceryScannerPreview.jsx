@@ -294,21 +294,77 @@ function SaleMode({ onPaid }) {
         <div className="text-slate-400 text-sm">Tip: Use a hardware scanner or type a barcode and press Scan.</div>
       </div>
 
-      <div className="space-y-46"  ></div>
+      {/* Right: Cart & total */}
+      <div className="space-y-4">
+        <SectionTitle>Cart</SectionTitle>
+        <div className="bg-slate-800/70 border border-slate-700 rounded-2xl divide-y divide-slate-700 max-h-[26rem] overflow-auto">
+          {cart.length === 0 && (
+            <div className="p-4 text-slate-400">Scan to start adding items…</div>
+          )}
+          {cart.map((item) => (
+            <div key={item.barcode} className="p-4 flex items-center gap-4">
+              <div className="flex-1">
+                <div className="font-extrabold">{item.name}</div>
+                <div className="text-slate-400 text-sm">#{item.barcode}</div>
+              </div>
+              <div className="w-20 text-right font-extrabold">{formatMoney(item.price)}</div>
+              <div className="flex items-center gap-2">
+                <button className="pill" onClick={() => setCart((prev)=>prev.map(i=> i.barcode===item.barcode?{...i, qty: Math.max(1,i.qty-1)}:i))}>−</button>
+                <div className="w-8 text-center font-extrabold">{item.qty}</div>
+                <button className="pill" onClick={() => setCart((prev)=>prev.map(i=> i.barcode===item.barcode?{...i, qty: i.qty+1}:i))}>+</button>
+              </div>
+              <button className="pill" onClick={() => setCart((prev)=>prev.filter(i=>i.barcode!==item.barcode))}>✕</button>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-slate-800/70 border border-slate-700 rounded-2xl p-4 flex items-center justify-between">
+          <div className="text-slate-300 font-bold">Total</div>
+          <div className="text-2xl font-black">{formatMoney(total)}</div>
+        </div>
+
+        <div className="flex gap-3">
+          <button className="btn-secondary" onClick={()=>setCart([])}>Clear</button>
+          <button className="btn-primary" onClick={paidAndArchive}>Paid</button>
+        </div>
+        {toast && <div className="text-emerald-400 text-sm font-bold">{toast}</div>}
+      </div>
     </div>
   );
 }
-
-// ... rest of code unchanged for brevity (scanner mock, suggestion list, styles, etc.)
 
 /* -------------------------- UI PARTS -------------------------- */
 function SectionTitle({ children }) {
   return <h2 className="text-lg font-extrabold">{children}</h2>;
 }
 
-// (The rest of helper components and demo data + style injection copied verbatim as provided.)
+function Label({ children }) {
+  return <div className="text-slate-300 font-bold text-sm">{children}</div>;
+}
 
-// -- For brevity, the rest of helper functions from user snippet are the same --
+function ScannerMock({ hint, value, onChange, onScan }) {
+  return (
+    <div className="relative bg-slate-950/40 border border-slate-800 rounded-2xl overflow-hidden h-56 flex flex-col">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.15),transparent_60%)]" />
+      <div className="flex-1 grid place-items-center">
+        <div className="text-slate-300 text-sm bg-black/40 px-3 py-1 rounded-full border border-slate-700">
+          {hint}
+        </div>
+      </div>
+      <div className="p-3 border-t border-slate-800 bg-slate-900/60 flex gap-2">
+        <input
+          className="flex-1 input"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Type barcode here to simulate scan…"
+        />
+        <button className="btn-primary" onClick={onScan}>Scan</button>
+      </div>
+    </div>
+  );
+}
+
+// (SuggestionList, FooterNote, successFeedback, etc. stay as added below)
 
 /* -------------------------- REMAINING HELPERS -------------------------- */
 function SuggestionList({ items, onPick }) {
