@@ -85,6 +85,7 @@ function InventoryMode() {
   const [query, setQuery] = useState("");
   const [items, setItems] = useState([]);
   const [toast, setToast] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const [scanning,setScanning]=useState(true);
 
   useEffect(()=>{ if(!toast) return; const t=setTimeout(()=>setToast(""),1500); return ()=>clearTimeout(t);},[toast]);
@@ -121,10 +122,18 @@ function InventoryMode() {
     const p = Number(price);
     const s = stock === "" ? 0 : Number(stock);
     if (!barcode || !p || p <= 0) return;
-    await ProductsAPI.upsert({ barcode, name, price: p, stock: s });
-    const fresh = await ProductsAPI.list();
-    setItems(fresh.items || []);
-    setToast("Product saved");
+    try{
+      setIsSaving(true);
+      await ProductsAPI.upsert({ barcode, name, price: p, stock: s });
+      const fresh = await ProductsAPI.list();
+      setItems(fresh.items || []);
+      setToast("Product saved");
+    }catch(e){
+      console.error(e);
+      setToast("Save failed: "+(e?.message||"error"));
+    }finally{
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -162,7 +171,7 @@ function InventoryMode() {
         <div className="bg-slate-800/70 border border-slate-700 rounded-2xl p-4 space-y-3">
           <Label>Barcode</Label>
           <input
-            className="input"
+            className="input w-full"
             value={barcode}
             onChange={(e) => setBarcode(e.target.value)}
             placeholder="Scan a barcode…"
@@ -170,7 +179,7 @@ function InventoryMode() {
 
           <Label>Name (optional)</Label>
           <input
-            className="input"
+            className="input w-full"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g., Milk 1L"
@@ -178,7 +187,7 @@ function InventoryMode() {
 
           <Label>Price</Label>
           <input
-            className="input"
+            className="input w-full"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             placeholder="e.g., 12.50"
@@ -186,14 +195,14 @@ function InventoryMode() {
 
           <Label>Stock (optional)</Label>
           <input
-            className="input"
+            className="input w-full"
             value={stock}
             onChange={(e) => setStock(e.target.value)}
             placeholder="e.g., 20"
           />
 
           <div className="flex gap-3 pt-2">
-            <button className="btn-primary" onClick={save}>Save Product</button>
+            <button className="btn-primary" disabled={isSaving} onClick={save}>{isSaving?"Saving…":"Save Product"}</button>
             <button className="btn-secondary" onClick={() => {
               setBarcode(""); setName(""); setPrice(""); setStock(""); setScanning(true);
             }}>Clear</button>
