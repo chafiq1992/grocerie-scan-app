@@ -238,7 +238,7 @@ function InventoryMode() {
                 <div className="font-extrabold text-slate-900">{item.name || "(No name)"}</div>
                 <div className="text-slate-500 text-sm">#{item.barcode}</div>
               </div>
-              <div className="font-extrabold">{formatMoney(item.price)}</div>
+              <div className="font-extrabold text-slate-900">{formatMoney(item.price)}</div>
               <span className="px-3 py-1 text-xs rounded-full bg-slate-100 border border-slate-300 text-slate-700">Stock: {item.stock ?? 0}</span>
               <button
                 className="btn-ghost"
