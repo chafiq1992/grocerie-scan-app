@@ -271,6 +271,7 @@ function SaleMode({ onPaid }) {
   const [scan, setScan] = useState("");
   const [toast, setToast] = useState("");
   const [catalog, setCatalog] = useState([]);
+  const [amountPaid, setAmountPaid] = useState("");
   const [scanning,setScanning]=useState(true);
 
   useEffect(()=>{ if(!toast) return; const t=setTimeout(()=>setToast(""),1500); return ()=>clearTimeout(t);},[toast]);
@@ -301,6 +302,7 @@ function SaleMode({ onPaid }) {
   }
 
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const change = Math.max(0, Number(amountPaid||0) - total);
 
   function paidAndArchive() {
     if (cart.length === 0) return;
@@ -323,31 +325,33 @@ function SaleMode({ onPaid }) {
     <div className="grid md:grid-cols-2 gap-6">
       <div className="space-y-4">
         <SectionTitle>Sale Mode</SectionTitle>
-        {/* Prefer live camera on small screens */}
+        {/* Desktop fallback scanner */}
         <div className="hidden sm:block">
           <ScannerMock
             hint="Scan items or type code…"
             value={scan}
             onChange={setScan}
-            onScan={mockScan}
+            onScan={()=>{ mockScan(); setScanning(false); }}
           />
+          {scan && (
+            <SuggestionList
+              items={suggestions}
+              onPick={(it)=>{ setScan(it.barcode); }}
+            />
+          )}
         </div>
+        {/* Mobile live scanner */}
         <div className="sm:hidden">
           {scanning && (
             <LiveScanner zoom={2} onScan={(code)=>{ setScan(code); mockScan(); setScanning(false);} } />
           )}
-          <div className="text-center text-xs text-slate-400 mt-2">Camera active – point at barcode</div>
+          {!scanning && (
+            <button className="btn-secondary w-full mt-2" onClick={()=>{ setScan(""); setScanning(true); }}>Scan another</button>
+          )}
         </div>
-        {scan && (
-          <SuggestionList
-            items={suggestions}
-            onPick={(it)=>{ setScan(it.barcode); }}
-          />
-        )}
         <div className="text-slate-400 text-sm">Tip: Use a hardware scanner or type a barcode and press Scan.</div>
       </div>
 
-      {/* Right: Cart & total */}
       <div className="space-y-4">
         <SectionTitle>Cart</SectionTitle>
         <div className="bg-slate-800/70 border border-slate-700 rounded-2xl divide-y divide-slate-700 max-h-[26rem] overflow-auto">
@@ -371,13 +375,35 @@ function SaleMode({ onPaid }) {
           ))}
         </div>
 
+        {/* Payment section */}
+        <div className="bg-white border border-slate-300 rounded-2xl p-4 space-y-3">
+          <div className="text-slate-700 font-extrabold">Payment</div>
+          <input
+            className="input w-full"
+            value={amountPaid}
+            onChange={(e)=>setAmountPaid(e.target.value)}
+            placeholder="Amount paid (e.g., 100.00)"
+            inputMode="decimal"
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl p-3 border border-emerald-300 bg-emerald-50">
+              <div className="text-emerald-700 text-sm font-bold">Total</div>
+              <div className="text-2xl font-black text-emerald-700">{formatMoney(total)}</div>
+            </div>
+            <div className="rounded-xl p-3 border border-blue-300 bg-blue-50">
+              <div className="text-blue-700 text-sm font-bold">Change to return</div>
+              <div className="text-2xl font-black text-blue-700">{formatMoney(change)}</div>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-slate-800/70 border border-slate-700 rounded-2xl p-4 flex items-center justify-between">
           <div className="text-slate-300 font-bold">Total</div>
           <div className="text-2xl font-black">{formatMoney(total)}</div>
         </div>
 
         <div className="flex gap-3">
-          <button className="btn-secondary" onClick={()=>{setCart([]);setScanning(true);setScan("");}}>Clear</button>
+          <button className="btn-secondary" onClick={()=>{setCart([]); setAmountPaid(""); setScanning(true); setScan("");}}>Clear</button>
           <button className="btn-primary" onClick={paidAndArchive}>Paid</button>
         </div>
         {toast && <div className="text-emerald-400 text-sm font-bold">{toast}</div>}
