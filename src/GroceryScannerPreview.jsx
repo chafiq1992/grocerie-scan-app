@@ -133,13 +133,22 @@ function InventoryMode() {
       <div className="space-y-4">
         <SectionTitle>Inventory Mode</SectionTitle>
 
-        {/* Scanner Mock with manual entry + suggestions */}
-        <ScannerMock
-          hint="Scan or type code to load product…"
-          value={barcode}
-          onChange={setBarcode}
-          onScan={handleMockScan}
-        />
+        {/* Desktop mock */}
+        <div className="hidden sm:block">
+          <ScannerMock
+            hint="Scan or type code to load product…"
+            value={barcode}
+            onChange={setBarcode}
+            onScan={handleMockScan}
+          />
+        </div>
+
+        {/* Mobile live scanner */}
+        <div className="sm:hidden">
+          <LiveScanner onScan={(code)=>{ setBarcode(code); handleMockScan(); }} />
+          <div className="text-center text-xs text-slate-400 mt-2">Camera active – point at barcode</div>
+        </div>
+
         {barcode && (
           <SuggestionList
             items={suggestions}
