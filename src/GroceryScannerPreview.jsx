@@ -402,7 +402,7 @@ function SaleMode({ onPaid }) {
         <div className="space-y-3">
           <div className="text-slate-700 font-extrabold">Payment</div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-white border rounded-2xl p-4">
+            <div className="bg-white border border-slate-300 rounded-2xl p-4">
               <input
                 className="input w-full text-black text-2xl p-4"
                 value={amountPaid}
