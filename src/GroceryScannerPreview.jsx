@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import LiveScanner from "./LiveScanner.jsx";
-import { ProductsAPI } from "./api.js";
+import { ProductsAPI, SalesAPI } from "./api.js";
 
 // Canvas visual mockup with HOME -> (Sale | Inventory) navigation
 // Includes: success beep + vibration on valid scan, manual entry with suggestions,
@@ -316,16 +316,27 @@ function SaleMode({ onPaid }) {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const change = Math.max(0, Number(amountPaid||0) - total);
 
-  function paidAndArchive() {
+  async function paidAndArchive() {
     if (cart.length === 0) return;
-    const receipt = {
-      timestamp: new Date().toLocaleString(),
-      items: cart,
-      total
-    };
-    onPaid?.(receipt);
-    setCart([]);
-    setToast("Order marked as PAID and archived");
+
+    try {
+      await SalesAPI.paid({
+        items: cart.map(({ barcode, qty }) => ({ barcode, qty })),
+        total,
+      });
+
+      const receipt = {
+        timestamp: new Date().toLocaleString(),
+        items: cart,
+        total,
+      };
+      onPaid?.(receipt);
+      setCart([]);
+      setToast("Order marked as PAID and archived");
+    } catch (e) {
+      console.error(e);
+      setToast("Payment failed: " + (e?.message || "error"));
+    }
   }
 
   const suggestions = useMemo(()=>{
