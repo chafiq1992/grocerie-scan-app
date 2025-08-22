@@ -289,22 +289,27 @@ function SaleMode({ onPaid }) {
     })();
   },[]);
 
-  function mockScan(codeIn) {
+  async function mockScan(codeIn) {
     const code = codeIn ?? scan;
     if (!code) return;
-    const product = catalog.find((i) => i.barcode === code);
-    if (!product) return; // no beep/vibration for invalid
+    let product = catalog.find((i) => String(i.barcode) === String(code));
+    if (!product) {
+      try { const r = await ProductsAPI.get(code); product = r || null; } catch {}
+    }
+    if (!product) { setToast(`Unknown barcode ${code}`); return; }
 
-    successFeedback(); // beep + vibrate on valid match
+    successFeedback();
 
+    const prodName = product.name || "(No name)";
+    const prodPrice = Number(product.price);
     setCart((prev) => {
-      const idx = prev.findIndex((x) => x.barcode === product.barcode);
+      const idx = prev.findIndex((x) => String(x.barcode) === String(code));
       if (idx >= 0) {
         const copy = [...prev];
         copy[idx] = { ...copy[idx], qty: copy[idx].qty + 1 };
         return copy;
       }
-      return [...prev, { barcode: product.barcode, name: product.name, price: product.price, qty: 1 }];
+      return [...prev, { barcode: String(code), name: prodName, price: prodPrice, qty: 1 }];
     });
   }
 
@@ -350,7 +355,7 @@ function SaleMode({ onPaid }) {
         {/* Mobile live scanner */}
         <div className="sm:hidden">
           {scanning && (
-            <LiveScanner zoom={2} onScan={(code)=>{ mockScan(code); setScan(code); setScanning(false);} } />
+            <LiveScanner zoom={2} onScan={async (code)=>{ await mockScan(code); setScan(code); setScanning(false);} } />
           )}
           {!scanning && (
             <button className="btn-secondary w-full mt-2" onClick={()=>{ setScan(""); setScanning(true); }}>Scan another</button>
