@@ -38,30 +38,44 @@ function Header({ screen, onBack }) {
   );
 }
 
-function Home({ onOpen, archived }) {
-  return (
-    <div className="grid md:grid-cols-2 gap-6">
-      <button onClick={()=>onOpen("sale")} className="homeCard group">
-        <div className="homeIcon bg-emerald-500/20 border-emerald-500">🛒</div>
-        <div className="homeText">
-          <div className="homeTitle">Sale</div>
-          <div className="homeHint">Scan items, see total, mark as paid</div>
-        </div>
-      </button>
-      <button onClick={()=>onOpen("inventory")} className="homeCard group">
-        <div className="homeIcon bg-sky-500/20 border-sky-500">📦</div>
-        <div className="homeText">
-          <div className="homeTitle">Inventory</div>
-          <div className="homeHint">Add or update products & prices</div>
-        </div>
-      </button>
+  function Home({ onOpen, archived }) {
+    return (
+      <div className="grid gap-8 md:grid-cols-2">
+        <button
+          onClick={() => onOpen("sale")}
+          className="group flex items-center p-8 bg-slate-800/70 border border-slate-700 rounded-2xl transition-colors hover:bg-slate-700/40"
+        >
+          <div className="flex items-center justify-center w-24 h-24 text-5xl bg-emerald-500/20 border border-emerald-500 rounded-xl">
+            🛒
+          </div>
+          <div className="ml-6 text-left">
+            <div className="text-2xl font-extrabold mb-1">Sale</div>
+            <div className="text-slate-400 text-sm">
+              Scan items, see total, mark as paid
+            </div>
+          </div>
+        </button>
+        <button
+          onClick={() => onOpen("inventory")}
+          className="group flex items-center p-8 bg-slate-800/70 border border-slate-700 rounded-2xl transition-colors hover:bg-slate-700/40"
+        >
+          <div className="flex items-center justify-center w-24 h-24 text-5xl bg-sky-500/20 border border-sky-500 rounded-xl">
+            📦
+          </div>
+          <div className="ml-6 text-left">
+            <div className="text-2xl font-extrabold mb-1">Inventory</div>
+            <div className="text-slate-400 text-sm">
+              Add or update products & prices
+            </div>
+          </div>
+        </button>
 
-      <div className="md:col-span-2 bg-slate-800/70 border border-slate-700 rounded-2xl p-4">
-        <div className="font-extrabold mb-2">Archived receipts</div>
-        {archived.length === 0 ? (
-          <div className="text-slate-400">No archived orders yet.</div>
-        ) : (
-          <ul className="space-y-2">
+        <div className="md:col-span-2 bg-slate-800/70 border border-slate-700 rounded-2xl p-4">
+          <div className="font-extrabold mb-2">Archived receipts</div>
+          {archived.length === 0 ? (
+            <div className="text-slate-400">No archived orders yet.</div>
+          ) : (
+            <ul className="space-y-2">
             {archived.map((r,idx)=> (
               <li key={idx} className="flex items-center justify-between bg-slate-900/60 border border-slate-700 rounded-xl p-3">
                 <div className="text-sm text-slate-300">{r.timestamp}</div>
