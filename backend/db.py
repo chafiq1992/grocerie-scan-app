@@ -1,22 +1,28 @@
 import os
 import decimal
+from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 import psycopg
 from psycopg.rows import dict_row
 
 
 # --- Connection string ---
-DB_URL = os.environ.get("SUPABASE_DB_URL")
-
-if not DB_URL:
+raw_url = os.environ.get("SUPABASE_DB_URL")
+if not raw_url:
     raise RuntimeError("SUPABASE_DB_URL is required. Set it via env vars.")
 
-# Ensure TLS param for Supabase; handle case where user supplied '?sslmode' without '=require'
-if "sslmode" not in DB_URL:
-    sep = "&" if "?" in DB_URL else "?"
-    DB_URL = f"{DB_URL}{sep}sslmode=require"
-elif "sslmode=" not in DB_URL:
-    # replace bare 'sslmode' with 'sslmode=require'
-    DB_URL = DB_URL.replace("sslmode", "sslmode=require")
+# Normalize URL and enforce sslmode=require
+def _normalize_db_url(url: str) -> str:
+    parts = urlsplit(url.strip())
+    scheme = parts.scheme or "postgresql"
+    # Accept postgres / postgresql schemes; strip any SQLAlchemy driver suffix
+    if "+" in scheme:
+        scheme = scheme.split("+", 1)[0]
+    query = dict(parse_qsl(parts.query, keep_blank_values=True))
+    query["sslmode"] = query.get("sslmode") or "require"
+    new_query = urlencode(query)
+    return urlunsplit((scheme, parts.netloc, parts.path, new_query, parts.fragment))
+
+DB_URL = _normalize_db_url(raw_url)
 
 
 def get_conn():
