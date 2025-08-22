@@ -289,9 +289,10 @@ function SaleMode({ onPaid }) {
     })();
   },[]);
 
-  function mockScan() {
-    if (!scan) return;
-    const product = catalog.find((i) => i.barcode === scan);
+  function mockScan(codeIn) {
+    const code = codeIn ?? scan;
+    if (!code) return;
+    const product = catalog.find((i) => i.barcode === code);
     if (!product) return; // no beep/vibration for invalid
 
     successFeedback(); // beep + vibrate on valid match
@@ -349,7 +350,7 @@ function SaleMode({ onPaid }) {
         {/* Mobile live scanner */}
         <div className="sm:hidden">
           {scanning && (
-            <LiveScanner zoom={2} onScan={(code)=>{ setScan(code); mockScan(); setScanning(false);} } />
+            <LiveScanner zoom={2} onScan={(code)=>{ mockScan(code); setScan(code); setScanning(false);} } />
           )}
           {!scanning && (
             <button className="btn-secondary w-full mt-2" onClick={()=>{ setScan(""); setScanning(true); }}>Scan another</button>
