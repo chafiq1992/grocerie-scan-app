@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { BrowserMultiFormatReader, NotFoundException } from "@zxing/library";
+import { BrowserMultiFormatReader, NotFoundException } from "@zxing/library/esm5";
 
 /**
  * LiveScanner opens the device camera and decodes barcodes continuously.
