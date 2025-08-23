@@ -9,7 +9,7 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from .db import get_conn, to_float, run_schema
+from .db import get_conn, to_float, run_schema, USE_LOCAL_DB
 
 
 app = FastAPI()
@@ -17,11 +17,12 @@ app = FastAPI()
 
 @app.on_event("startup")
 def _init_db_schema():
-    try:
-        run_schema()
-    except Exception as exc:
-        # Do not crash if schema already exists; just log
-        print(f"Schema init warning: {exc}", flush=True)
+    if USE_LOCAL_DB:
+        try:
+            run_schema()
+        except Exception as exc:
+            # Do not crash if schema already exists; just log
+            print(f"Schema init warning: {exc}", flush=True)
 
 
 # ---------- Pydantic models ----------
