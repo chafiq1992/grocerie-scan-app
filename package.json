@@ -12,7 +12,8 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "quagga": "^0.12.1"
+    "quagga": "^0.12.1",
+    "localforage": "^1.10.0"
   },
   "devDependencies": {
     "vite": "^5.2.0",
