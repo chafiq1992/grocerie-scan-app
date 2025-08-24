@@ -52,7 +52,7 @@ export const ProductsAPI = {
         method: 'POST',
         body: JSON.stringify(p),
       });
-      await productsStore.setItem(p.barcode, res);
+      await productsStore.setItem(p.barcode, p);
       return res;
     }
     await productsStore.setItem(p.barcode, p);
