@@ -28,13 +28,15 @@ export const ProductsAPI = {
   list: async (q = '') => {
     if (navigator.onLine) {
       const data = await api(`/api/products${q ? `?query=${encodeURIComponent(q)}` : ''}`);
-      data.forEach((p) => productsStore.setItem(p.barcode, p));
-      return data;
+      const items = data.items || [];
+      items.forEach((p) => productsStore.setItem(p.barcode, p));
+      return { items };
     }
     const all = [];
     await productsStore.iterate((v) => all.push(v));
-    if (q) return all.filter((p) => p.name?.toLowerCase().includes(q.toLowerCase()));
-    return all;
+    let items = all;
+    if (q) items = items.filter((p) => p.name?.toLowerCase().includes(q.toLowerCase()));
+    return { items };
   },
   get: async (barcode) => {
     if (navigator.onLine) {
