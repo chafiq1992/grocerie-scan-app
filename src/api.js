@@ -69,12 +69,12 @@ export const SalesAPI = {
   list: async (limit = 50) => {
     if (navigator.onLine) {
       const data = await api(`/api/sales?limit=${limit}`);
-      data.forEach((s) => salesStore.setItem(s.id, s));
-      return data;
+      data.items.forEach((s) => salesStore.setItem(s.id, s));
+      return { items: data.items };
     }
     const all = [];
     await salesStore.iterate((v) => all.push(v));
-    return all.slice(-limit);
+    return { items: all.slice(-limit) };
   },
   paid: async (payload) => {
     if (navigator.onLine) {
