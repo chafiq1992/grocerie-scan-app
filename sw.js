@@ -1,28 +1,12 @@
 importScripts('https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js');
 
-const CACHE = 'app-cache-v1';
-const ASSETS = ['/', '/index.html'];
-
+// Offline request queue
 const queueStore = localforage.createInstance({ name: 'queue' });
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
-});
-
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  event.respondWith(
-    caches.match(event.request).then((res) => {
-      return (
-        res ||
-        fetch(event.request).then((fetchRes) => {
-          const copy = fetchRes.clone();
-          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
-          return fetchRes;
-        })
-      );
-    })
-  );
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-queue') {
+    event.waitUntil(processQueue());
+  }
 });
 
 async function processQueue() {
@@ -32,14 +16,9 @@ async function processQueue() {
     try {
       await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...opts });
       await queueStore.removeItem(key);
-    } catch (e) {
+    } catch (err) {
+      // stop processing on failure; we'll retry on next sync
       break;
     }
   }
 }
-
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-queue') {
-    event.waitUntil(processQueue());
-  }
-});
